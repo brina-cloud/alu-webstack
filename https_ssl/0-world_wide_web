@@ -1,0 +1,26 @@
+
+#!/usr/bin/env bash
+#Get info details of domain name 
+info_domain() {
+    local domain=$1
+    local subdomain=$2
+
+    result=$(dig ${subdomain}.${domain} | grep -A1 'ANSWER SECTION:' | awk 'NR==2 {print $4, $5}')
+
+    record_type=$(echo $result | awk '{print $1}')
+    destination=$(echo $result | awk '{print $2}')
+
+    echo "The subdomain ${subdomain} is a ${record_type} record and points to ${destination}"
+}
+
+domain=$1
+subdomain=$2
+
+if [ -z "$subdomain" ]; then
+    for sub in www lb-01 web-01 web-02; do
+        info_domain "$domain" "$sub"
+    done
+else
+    info_domain "$domain" "$subdomain"
+fi
+
